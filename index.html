@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虛空終端 - Matrix Portfolio Hub</title>
+    <!-- 引入 Tailwind CSS (用於快速排版) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 引入 OrbitControls (滑鼠拖曳旋轉功能) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- 引入 CSS2DRenderer (用於永遠顯示的 3D 標籤) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+    
+    <style>
+        /* 基礎設定與自定義字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 隱藏滾動條 */
+            background-color: #000; /* 基礎純黑背景 */
+            font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+            color: #0ff; /* 駭客藍/青 */
+            user-select: none;
+        }
+
+        /* 數位雨背景 Canvas */
+        #matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1; /* 最底層 */
+        }
+
+        /* 3D 渲染 Canvas */
+        #webgl-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2; /* 中間層 */
+            cursor: crosshair;
+        }
+
+        /* CSS2D 渲染器容器 */
+        #css2d-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 3; /* 在 WebGL 之上 */
+        }
+
+        /* UI 覆蓋層 */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10; /* 提高 z-index 確保在最頂層 */
+            pointer-events: none; /* 讓點擊事件可以穿透到底下的 CSS2D 與 3D 畫布 */
+        }
+
+        /* 衛星標籤樣式 */
+        .satellite-label {
+            color: #0ff;
+            font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            pointer-events: auto; /* 允許點擊 */
+            text-shadow: 0 0 8px #0ff;
+            background: rgba(0, 10, 30, 0.7);
+            border: 1px solid #0ff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s, opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .satellite-label:hover {
+            background: #0ff;
+            color: #000;
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 15px #0ff;
+        }
+
+        /* 右側終端機面板 (子選單) */
+        #side-panel {
+            position: absolute;
+            top: 0;
+            right: -100%; /* 初始隱藏在右側畫面外 */
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: rgba(0, 10, 25, 0.9);
+            border-left: 2px solid #0ff;
+            box-shadow: -10px 0 30px rgba(0, 255, 255, 0.1);
+            transition: right 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
+            padding: 2rem;
+            box-sizing: border-box;
+            pointer-events: auto; /* 恢復面板的點擊 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #side-panel.active {
+            right: 0;
+        }
+
+        .panel-header {
+            border-bottom: 1px dashed #0ff;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px #0ff;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: none;
+            border: 1px solid #0ff;
+            color: #0ff;
+            font-family: inherit;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 15px #0ff;
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* 自定義捲軸 */
+        .link-list::-webkit-scrollbar { width: 5px; }
+        .link-list::-webkit-scrollbar-track { background: #000a14; }
+        .link-list::-webkit-scrollbar-thumb { background: #0ff; }
+
+        .link-item {
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+        }
+
+        .link-item a {
+            display: block;
+            color: #ccffff;
+            text-decoration: none;
+            padding: 1rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            background: rgba(0, 20, 40, 0.4);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-item a::before {
+            content: "►";
+            position: absolute;
+            left: 10px;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .link-item a:hover {
+            border-color: #0ff;
+            background: rgba(0, 40, 80, 0.6);
+            color: #fff;
+            padding-left: 2rem;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .link-item a:hover::before {
+            opacity: 1;
+        }
+
+        /* 漂浮的背景小插圖 (SVG) */
+        .bg-icon {
+            pointer-events: none; /* 確保不會阻擋點擊 */
+            transition: opacity 0.5s;
+        }
+        .bg-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: currentColor;
+        }
+
+        /* 頂部標題 */
+        .main-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+        }
+        .main-title h1 {
+            margin: 0;
+            font-size: 2rem;
+            text-shadow: 0 0 15px #0ff;
+            animation: pulse 2s infinite;
+        }
+        .main-title p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px #0ff; }
+            50% { text-shadow: 0 0 25px #0ff, 0 0 5px #fff; }
+            100% { text-shadow: 0 0 10px #0ff; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- 網頁資料庫 (Portfolio Database)            -->
+    <!-- 修改這個物件即可輕鬆增刪改分類與連結項目   -->
+    <!-- 您可以把這裡想像成獨立的 config.js 檔案    -->
+    <!-- ========================================== -->
+    <script>
+        const portfolioData = {
+            "工具": [
+                { name: "作業登記掃描", url: "#scan" },
+                { name: "收件登記表", url: "#inbox" },
+                { name: "學習終端 p2p", url: "#p2p" },
+                { name: "成績登記(單機版)", url: "#grades" },
+                { name: "班級儀錶板", url: "#dashboard" },
+                { name: "分貝計", url: "#decibel" },
+                { name: "QR code 產生器", url: "#qrcode" }
+            ],
+            "小遊戲": [
+                { name: "河內塔", url: "#hanoi" },
+                { name: "數獨", url: "#sudoku" },
+                { name: "抓硬幣", url: "#coin" },
+                { name: "記憶考驗", url: "#memory" },
+                { name: "射擊提問遊戲", url: "#shoot" },
+                { name: "質數射擊", url: "#prime" }
+            ],
+            "教具": [
+                { name: "數學互動模型", url: "#math" },
+                { name: "全息影像 放大縮小圖", url: "#hologram" },
+                { name: "錄音作業上傳", url: "#audio" },
+                { name: "隨機問題", url: "#random" },
+                { name: "繪製圓形百分圖", url: "#piechart" },
+                { name: "神話地圖", url: "#map" },
+                { name: "字音字形 練習", url: "#typing" }
+            ]
+        };
+    </script>
+    <!-- ========================================== -->
+
+    <!-- 背景層：數位雨 -->
+    <canvas id="matrix-bg"></canvas>
+
+    <!-- 3D 渲染層 -->
+    <div id="webgl-container"></div>
+
+    <!-- UI 覆蓋層 -->
+    <div id="ui-layer">
+        <div class="main-title">
+            <h1>虛空終端</h1>
+            <p>Connection Established. Select a node.</p>
+        </div>
+
+        <div id="side-panel">
+            <div class="panel-header">
+                <h2 class="panel-title" id="panel-title">CATEGORY</h2>
+                <button class="close-btn" id="btn-close">[ ⏏ 終止連線 ]</button>
+            </div>
+            <ul class="link-list" id="link-list">
+                <!-- 連結將透過 JS 自動生成 -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. Matrix 數位雨背景特效 (2D Canvas)
+        // ==========================================
+        const matrixCanvas = document.getElementById('matrix-bg');
+        const mCtx = matrixCanvas.getContext('2d');
+        
+        matrixCanvas.width = window.innerWidth;
+        matrixCanvas.height = window.innerHeight;
+
+        // 駭客字元集 (加入數學與物理符號)
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ∑π∫ΔΩ∞'.split('');
+        const fontSize = 22; // 放大字體以降低密度
+        const columns = matrixCanvas.width / fontSize;
+        const drops = [];
+
+        // 初始化水滴位置
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * -100; // 讓初始位置錯開
+        }
+
+        function drawMatrix() {
+            // 半透明黑底，製造尾跡效果 (稍微加深以減少殘影長度)
+            mCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+            mCtx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                // 如果水滴正在等待重生(負數)，則只增加計數而不繪製
+                if (drops[i] < 0) {
+                    drops[i]++;
+                    continue;
+                }
+
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                
+                // 偶爾讓字變成亮白色增加閃爍感，並調低普通字的透明度
+                if(Math.random() > 0.95) {
+                    mCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                } else {
+                    mCtx.fillStyle = 'rgba(0, 255, 255, 0.4)'; // 降低透明度，減輕背景干擾
+                }
+
+                mCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                // 如果水滴掉出畫面底部，隨機重生 (調高機率門檻使其不那麼頻繁)
+                if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.98) {
+                    drops[i] = -Math.random() * 30; // 設定為負數以延遲重生，進一步降低密度
+                }
+                drops[i]++;
+            }
+        }
+        // 降低 2D 背景 FPS 至約 15 (1000/66)，大幅節省效能
+        setInterval(drawMatrix, 66);
+
+        // ==========================================
+        // 2. 3D 核心系統 (Three.js) - 線框地球與衛星軌道
+        // ==========================================
+        window.onload = function() {
+            const container = document.getElementById('webgl-container');
+            const sidePanel = document.getElementById('side-panel');
+            const btnClose = document.getElementById('btn-close');
+            const linkList = document.getElementById('link-list');
+            const panelTitle = document.getElementById('panel-title');
+            
+            // 場景、相機、渲染器
+            const scene = new THREE.Scene();
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // CSS2D 渲染器 (用於 3D 空間中的 HTML 標籤)
+            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.id = 'css2d-container';
+            document.body.appendChild(labelRenderer.domElement);
+
+            const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1500);
+            camera.position.set(0, 30, 160); // 調整鏡頭距離，讓主體更大且清晰
+
+            // OrbitControls 滑鼠拖曳旋轉控制 (綁定在最上層的 labelRenderer 上)
+            const controls = new THREE.OrbitControls(camera, labelRenderer.domElement);
+            controls.enableDamping = true; // 增加平滑慣性
+            controls.dampingFactor = 0.05;
+            controls.enablePan = false; // 禁用右鍵平移，保持在中心
+            controls.minDistance = 60; // 限制最小縮放
+            controls.maxDistance = 400; // 限制最大縮放
+
+            // 光源
+            const ambientLight = new THREE.AmbientLight(0x001122); 
+            scene.add(ambientLight);
+            
+            const pointLight = new THREE.PointLight(0x00ffff, 2, 200);
+            pointLight.position.set(0, 0, 0);
+            scene.add(pointLight);
+
+            // --- 建立中心核心 (大型 Wireframe Earth) ---
+            const earthGeo = new THREE.SphereGeometry(28, 24, 24); // 放大地球
+            const edges = new THREE.EdgesGeometry(earthGeo);
+            const earthMat = new THREE.LineBasicMaterial({ 
+                color: 0x00ffff, 
+                transparent: true, 
+                opacity: 0.5 
+            });
+            const earthMesh = new THREE.LineSegments(edges, earthMat);
+            // 設定真實地球傾角 23.5 度
+            earthMesh.rotation.z = THREE.MathUtils.degToRad(23.5);
+            scene.add(earthMesh);
+
+            // --- 建立背景裝飾 (優雅的智慧與學習 SVG 插圖，使用 CSS2DObject) ---
+            const bgIcons = [];
+            const iconColors = ['#FFD700', '#FFA500', '#FF69B4', '#32CD32', '#9370DB', '#00BFFF']; // 豐富的色彩(金、橘、粉、萊姆綠、紫、亮藍)
+            const svgIcons = [
+                // 書本
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+                // 燈泡
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.5.5 2.9 1.5 4.1.75.75 1.22 1.5 1.4 2.5"/></svg>',
+                // 學士帽
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+                // 筆記型電腦
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M2 20h20"/></svg>',
+                // 大腦
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>',
+                // 顯微鏡
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>'
+            ];
+
+            // 產生 25 個漂浮的 CSS2D SVG 插圖
+            for (let i = 0; i < 25; i++) {
+                const svgString = svgIcons[i % svgIcons.length];
+                const color = iconColors[i % iconColors.length];
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'bg-icon';
+                iconDiv.innerHTML = svgString;
+                
+                // 隨機大小與透明度
+                const size = 15 + Math.random() * 25;
+                iconDiv.style.width = size + 'px';
+                iconDiv.style.height = size + 'px';
+                iconDiv.style.opacity = (0.2 + Math.random() * 0.4).toString();
+                
+                // 動態設定豐富的顏色與對應的發光陰影
+                iconDiv.style.color = color;
+                iconDiv.style.filter = `drop-shadow(0 0 8px ${color})`;
+
+                const iconObj = new THREE.CSS2DObject(iconDiv);
+                
+                // 隨機分佈在較遠的背景空間 (半徑 150 到 250)
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const r = 150 + Math.random() * 100; 
+                
+                iconObj.position.set(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta),
+                    r * Math.cos(phi)
+                );
+                
+                // 紀錄偏移量用於漂浮動畫
+                iconObj.userData = { offset: Math.random() * Math.PI * 2 };
+                
+                scene.add(iconObj);
+                bgIcons.push(iconObj);
+            }
+
+            // --- 根據 portfolioData 動態生成衛星與軌道 ---
+            const categories = Object.keys(portfolioData);
+            const satelliteData = []; 
+            
+            // 攝影機與動畫控制狀態
+            let isPaused = false;
+            let isFocusing = false;
+            let isRestoring = false; // 新增狀態：是否正在恢復視角
+            let activeSatMesh = null;
+            
+            // 儲存拖曳後的視角，以便關閉面板時返回
+            const savedCameraPos = new THREE.Vector3();
+            const savedControlsTarget = new THREE.Vector3();
+            
+            const targetCameraPos = new THREE.Vector3();
+            const targetLook = new THREE.Vector3();
+
+            categories.forEach((catName, index) => {
+                const radius = 80; // 統一軌道半徑，確保所有衛星都在同一球面上
+                
+                // 傾斜群組 (設定不重疊的固定軌道)
+                const tiltGroup = new THREE.Group();
+                if (index === 0) {
+                    tiltGroup.rotation.set(0, 0, 0); 
+                } else if (index === 1) {
+                    tiltGroup.rotation.set(0, 0, Math.PI / 6); // Z軸傾斜 +30度
+                } else {
+                    tiltGroup.rotation.set(0, 0, -Math.PI / 6); // Z軸傾斜 -30度
+                }
+                scene.add(tiltGroup);
+
+                // 建立軌道實體線條
+                const orbitCurve = new THREE.EllipseCurve(0, 0, radius, radius, 0, 2 * Math.PI, false, 0);
+                const orbitPoints = orbitCurve.getPoints(64);
+                const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+                const orbitMat = new THREE.LineBasicMaterial({ color: 0x00bfff, transparent: true, opacity: 0.3 });
+                const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+                orbitLine.rotation.x = Math.PI / 2; // 將軌道平躺
+                tiltGroup.add(orbitLine);
+
+                // 建立衛星本體
+                const satGeo = new THREE.OctahedronGeometry(2.5, 0);
+                const satMat = new THREE.MeshBasicMaterial({ color: 0x00bfff, wireframe: true });
+                const satMesh = new THREE.Mesh(satGeo, satMat);
+                tiltGroup.add(satMesh);
+
+                // 使用 CSS2DObject 建立永遠清晰的標籤
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'satellite-label';
+                labelDiv.innerText = catName;
+                
+                const satLabel = new THREE.CSS2DObject(labelDiv);
+                satLabel.position.set(0, 4, 0); // 讓標籤浮在衛星上方一點
+                satMesh.add(satLabel);
+
+                // 點擊事件
+                labelDiv.addEventListener('click', () => {
+                    if (!isPaused) openNode(catName, satMesh);
+                });
+
+                satelliteData.push({
+                    mesh: satMesh,
+                    radius: radius,
+                    angle: (Math.PI * 2 / 3) * index, // 精準分配 120 度相位差，永不重疊
+                    speed: 0.0015
+                });
+            });
+
+            // --- 面板互動邏輯 ---
+            function openNode(categoryName, satMesh) {
+                // 紀錄當下使用者旋轉到的攝影機位置與目標
+                savedCameraPos.copy(camera.position);
+                savedControlsTarget.copy(controls.target);
+
+                isPaused = true;
+                isFocusing = true;
+                isRestoring = false;
+                activeSatMesh = satMesh;
+                controls.autoRotate = false;
+                controls.enabled = false; // 暫時停用拖曳
+
+                panelTitle.innerText = `[ ${categoryName} ]`;
+                linkList.innerHTML = ''; 
+                
+                const links = portfolioData[categoryName];
+                if(links) {
+                    links.forEach((item, i) => {
+                        const li = document.createElement('li');
+                        li.className = 'link-item';
+                        const a = document.createElement('a');
+                        a.href = item.url;
+                        a.target = '_blank';
+                        a.innerText = item.name;
+                        li.appendChild(a);
+                        linkList.appendChild(li);
+
+                        setTimeout(() => {
+                            li.style.opacity = '1';
+                            li.style.transform = 'translateX(0)';
+                        }, 300 + i * 100);
+                    });
+                }
+                sidePanel.classList.add('active');
+            }
+
+            btnClose.addEventListener('click', () => {
+                sidePanel.classList.remove('active');
+                
+                isFocusing = false;
+                isRestoring = true; // 開啟恢復視角動畫
+                activeSatMesh = null;
+                
+                const items = document.querySelectorAll('.link-item');
+                items.forEach(item => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                });
+            });
+
+            // --- 視窗縮放處理 ---
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
+                
+                matrixCanvas.width = window.innerWidth;
+                matrixCanvas.height = window.innerHeight;
+            });
+
+            // --- 動畫迴圈 ---
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (!isPaused) {
+                    // 地球自轉 (rotateY 會基於前面設定的 23.5 度傾角局部自轉)
+                    earthMesh.rotateY(0.002);
+
+                    // 背景智慧插圖緩慢漂浮
+                    bgIcons.forEach(icon => {
+                        const time = Date.now();
+                        icon.position.y += Math.sin(time * 0.001 + icon.userData.offset) * 0.05;
+                        icon.position.x += Math.cos(time * 0.0008 + icon.userData.offset) * 0.03;
+                    });
+
+                    satelliteData.forEach(sat => {
+                        sat.angle += sat.speed;
+                        sat.mesh.position.set(
+                            Math.cos(sat.angle) * sat.radius,
+                            0,
+                            Math.sin(sat.angle) * sat.radius
+                        );
+                        sat.mesh.rotation.x += 0.01;
+                        sat.mesh.rotation.y += 0.01;
+                    });
+                }
+
+                // 視角過渡動畫
+                if (isFocusing && activeSatMesh) {
+                    const worldPos = new THREE.Vector3();
+                    activeSatMesh.getWorldPosition(worldPos);
+                    targetLook.copy(worldPos);
+                    
+                    const offset = worldPos.clone().normalize().multiplyScalar(30); 
+                    offset.y += 4;
+                    targetCameraPos.copy(worldPos).add(offset);
+
+                    camera.position.lerp(targetCameraPos, 0.04);
+                    controls.target.lerp(targetLook, 0.04);
+                } else if (isRestoring) {
+                    // 恢復到點擊前的視角
+                    camera.position.lerp(savedCameraPos, 0.04);
+                    controls.target.lerp(savedControlsTarget, 0.04);
+                    
+                    // 當距離夠近時，完全恢復狀態，允許繼續操作
+                    if (camera.position.distanceTo(savedCameraPos) < 0.5) {
+                        camera.position.copy(savedCameraPos);
+                        controls.target.copy(savedControlsTarget);
+                        isRestoring = false;
+                        isPaused = false;
+                        controls.enabled = true; // 恢復拖曳
+                    }
+                }
+                // 注意：這裡移除了原本當 !isPaused 時自動 lerp 彈回的邏輯！
+
+                controls.update(); 
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera); // 渲染 3D 空間中的 HTML 標籤
+            }
+
+            animate();
+        };
+    </script>
+</body>
+</html>
