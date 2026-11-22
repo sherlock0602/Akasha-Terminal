@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>虛空星盤 - Genshin Portfolio Hub</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,6 +25,8 @@
             font-family: 'Noto Serif TC', serif;
             color: #d4af37;
             user-select: none;
+            /* 阻止手機預設的滑動行為，確保 3D 順暢 */
+            touch-action: none; 
         }
 
         #star-bg {
@@ -86,14 +88,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(212, 175, 55, 0.2);
         }
 
-        .satellite-label:hover {
-            background: rgba(212, 175, 55, 0.2);
-            color: #fff;
-            transform: translate(-50%, -50%) scale(1.05);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), inset 0 0 10px rgba(212, 175, 55, 0.4);
-            border-color: #f3e3b3;
-        }
-
         #side-panel {
             position: absolute;
             top: 0;
@@ -111,6 +105,8 @@
             pointer-events: auto;
             display: flex;
             flex-direction: column;
+            /* 讓觸控螢幕的側邊欄可以順暢滑動 */
+            -webkit-overflow-scrolling: touch; 
         }
 
         #side-panel.active { right: 0; }
@@ -130,25 +126,6 @@
             text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
             margin: 0;
             letter-spacing: 2px;
-        }
-
-        .close-btn {
-            background: transparent;
-            border: 1px solid #d4af37;
-            border-radius: 20px;
-            color: #d4af37;
-            font-family: inherit;
-            padding: 0.4rem 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-
-        .close-btn:hover {
-            background: rgba(212, 175, 55, 0.2);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
         }
 
         .link-list {
@@ -192,17 +169,33 @@
             transform: scale(0.5);
         }
 
-        .link-item a:hover {
-            border-color: #d4af37;
-            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
-            color: #fff;
-            padding-left: 2.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .link-item a:hover::before {
-            opacity: 1;
-            transform: scale(1);
+        /* 🌟 只有在支援滑鼠懸停的設備上，才啟用 hover 動畫 (解決平板點擊失效問題) */
+        @media (hover: hover) {
+            .satellite-label:hover {
+                background: rgba(212, 175, 55, 0.2);
+                color: #fff;
+                transform: translate(-50%, -50%) scale(1.05);
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), inset 0 0 10px rgba(212, 175, 55, 0.4);
+                border-color: #f3e3b3;
+            }
+            .link-item a:hover {
+                border-color: #d4af37;
+                background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
+                color: #fff;
+                padding-left: 2.5rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+            .link-item a:hover::before {
+                opacity: 1;
+                transform: scale(1);
+            }
+            .treasure-chest:hover {
+                transform: scale(1.15) rotate(5deg);
+                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 1));
+            }
+            .treasure-chest:hover .treasure-chest-label {
+                opacity: 1;
+            }
         }
 
         .bg-icon {
@@ -248,19 +241,15 @@
             top: 30px;
             right: 40px;
             z-index: 20;
+            pointer-events: auto;
             text-decoration: none;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4));
         }
 
-        .treasure-chest:hover {
-            transform: scale(1.15) rotate(5deg);
-            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 1));
-        }
-
         .treasure-chest img {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             object-fit: contain;
         }
 
@@ -280,10 +269,6 @@
             pointer-events: none;
         }
 
-        .treasure-chest:hover .treasure-chest-label {
-            opacity: 1;
-        }
-
         .bg-orb {
             border-radius: 50%;
             animation: slowSpin 20s linear infinite;
@@ -294,22 +279,42 @@
             height: 100%;
             object-fit: contain;
         }
+
+        /* 🌟 手機版自適應優化 */
+        @media (max-width: 768px) {
+            .main-title { top: 20px; left: 20px; }
+            .main-title h1 { font-size: 1.5rem; letter-spacing: 2px; }
+            .main-title p { font-size: 0.8rem; }
+            
+            .treasure-chest { top: 20px; right: 20px; }
+            .treasure-chest img { width: 45px; height: 45px; }
+            
+            /* 側邊欄不要佔滿全寬，預留點擊空白處關閉的空間 */
+            #side-panel {
+                width: 80%;
+                max-width: 300px;
+                padding: 1.5rem;
+            }
+            .panel-title { font-size: 1.3rem; }
+            .link-item a { padding: 0.8rem 1rem; font-size: 0.95rem; }
+            
+            .satellite-label { font-size: 0.9rem; padding: 6px 14px; }
+        }
     </style>
 </head>
 <body>
 
     <script>
         // 【背景漂浮圖案設定】
-        // 將您畫好的小圖案檔名放在這個陣列裡。若留空則顯示發光小圓球。
         const floatingImages = [
-    'images/pyro.svg',
-    'images/hydro.svg',
-    'images/anemo.svg',
-    'images/electro.svg',
-    'images/dendro.svg',
-    'images/cryo.svg',
-    'images/geo.svg'
-]; 
+            'images/pyro.svg',
+            'images/hydro.svg',
+            'images/anemo.svg',
+            'images/electro.svg',
+            'images/dendro.svg',
+            'images/cryo.svg',
+            'images/geo.svg'
+        ]; 
     </script>
 
     <!-- 背景層：星空星塵 -->
@@ -322,18 +327,18 @@
     <div id="ui-layer">
         <div class="main-title">
             <h1>✦ 虛空星盤</h1>
-            <p>Ad Astra Abyssosque. Select a constellation.</p>
+            <p>Ad Astra Abyssosque.</p>
         </div>
 
+        <!-- 寶箱按鈕 (請在 images 資料夾放入 chest.png 即可) -->
         <a href="https://your-treasure-link.com" target="_blank" class="treasure-chest" id="treasure-btn">
-            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🎁</text></svg>" alt="Treasure Chest">
+            <img src="images/chest.png" alt="Treasure Chest">
             <span class="treasure-chest-label">神祕連結</span>
         </a>
 
         <div id="side-panel">
             <div class="panel-header">
                 <h2 class="panel-title" id="panel-title">CATEGORY</h2>
-                <button class="close-btn" id="btn-close">✦ 關閉星盤 ✦</button>
             </div>
             <ul class="link-list" id="link-list"></ul>
         </div>
@@ -354,7 +359,7 @@
         resizeCanvas();
 
         const particles = [];
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 150; i++) { // 稍微減少星塵數量以優化手機效能
             particles.push({
                 x: Math.random() * starCanvas.width,
                 y: Math.random() * starCanvas.height,
@@ -390,10 +395,9 @@
         // ==========================================
         // 2. 外部資料讀取與 3D 核心系統
         // ==========================================
-        let portfolioData = {}; // 準備存放從 JSON 讀取的資料
+        let portfolioData = {}; 
 
         window.onload = function() {
-            // 嘗試讀取同層目錄下的 data.json
             fetch('data.json')
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
@@ -401,26 +405,18 @@
                 })
                 .then(data => {
                     portfolioData = data;
-                    init3DScene(); // 讀取成功，啟動 3D
+                    init3DScene(); 
                 })
                 .catch(error => {
-                    console.warn("無法讀取 data.json (可能是因為直接點擊打開 HTML)。切換為預設防呆資料。", error);
-                    // 防呆機制：若因本地開啟檔案而無法 fetch，給予預設資料以維持畫面運作
-                    portfolioData = {
-                        "系統提示": [
-                            { name: "⚠️ 請使用本地伺服器開啟以讀取 JSON", url: "#" },
-                            { name: "(如 VS Code 的 Live Server)", url: "#" }
-                        ]
-                    };
+                    console.warn("無法讀取 data.json。切換為預設資料。", error);
+                    portfolioData = { "系統提示": [{ name: "⚠️ 無法讀取資料", url: "#" }] };
                     init3DScene();
                 });
         };
 
-        // 3D 場景初始化函數
         function init3DScene() {
             const container = document.getElementById('webgl-container');
             const sidePanel = document.getElementById('side-panel');
-            const btnClose = document.getElementById('btn-close');
             const linkList = document.getElementById('link-list');
             const panelTitle = document.getElementById('panel-title');
             
@@ -443,8 +439,9 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
             controls.enablePan = false;
-            controls.minDistance = 60;
-            controls.maxDistance = 350;
+            // 優化手機版縮放距離
+            controls.minDistance = 80;
+            controls.maxDistance = 250;
 
             const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); 
             scene.add(ambientLight);
@@ -456,13 +453,11 @@
             const astrolabeGroup = new THREE.Group();
             scene.add(astrolabeGroup);
 
-            // --- 載入真實地球貼圖 ---
+            // 載入真實地球貼圖
             const textureLoader = new THREE.TextureLoader();
-            // 這裡直接使用 Three.js 官方範例的無版權高畫質地球貼圖網址
             const earthTextureUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg';
             const planetTexture = textureLoader.load(earthTextureUrl);
 
-            // 中心星球
             const sphereGeo = new THREE.SphereGeometry(18, 64, 64);
             const sphereMat = new THREE.MeshStandardMaterial({ 
                 map: planetTexture,
@@ -473,32 +468,22 @@
             planetMesh.rotation.z = Math.PI / 8;
             astrolabeGroup.add(planetMesh);
 
-            // 金色星環
             const ringRings = [];
-            const ringMat = new THREE.MeshStandardMaterial({ 
-                color: 0xd4af37, 
-                metalness: 0.7, 
-                roughness: 0.2 
-            });
+            const ringMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.2 });
 
             const ring1 = new THREE.Mesh(new THREE.TorusGeometry(26, 0.4, 16, 100), ringMat);
             ring1.rotation.x = Math.PI / 2;
-            
             const ring2 = new THREE.Mesh(new THREE.TorusGeometry(30, 0.3, 16, 100), ringMat);
-            ring2.rotation.y = Math.PI / 3;
-            ring2.rotation.x = Math.PI / 4;
-            
+            ring2.rotation.y = Math.PI / 3; ring2.rotation.x = Math.PI / 4;
             const ring3 = new THREE.Mesh(new THREE.TorusGeometry(34, 0.2, 16, 100), ringMat);
-            ring3.rotation.y = -Math.PI / 3;
-            ring3.rotation.z = Math.PI / 6;
+            ring3.rotation.y = -Math.PI / 3; ring3.rotation.z = Math.PI / 6;
 
             astrolabeGroup.add(ring1, ring2, ring3);
             ringRings.push(ring1, ring2, ring3);
 
-            // 背景裝飾 (元素圖騰 SVG)
             const bgIcons = [];
             const elementColors = ['#FF5E5E', '#32B4FF', '#5CFFC4', '#C373FF', '#A0D729', '#99FFFF', '#F5D659'];
-            const iconCount = floatingImages.length > 0 ? floatingImages.length * 6 : 35;
+            const iconCount = floatingImages.length > 0 ? floatingImages.length * 6 : 30;
 
             for (let i = 0; i < iconCount; i++) {
                 const iconDiv = document.createElement('div');
@@ -525,7 +510,8 @@
                 const iconObj = new THREE.CSS2DObject(iconDiv);
                 const theta = Math.random() * Math.PI * 2;
                 const phi = Math.acos((Math.random() * 2) - 1);
-                const r = 160 + Math.random() * 100; 
+                // 手機版稍微縮小漂浮半徑
+                const r = window.innerWidth < 768 ? 120 + Math.random() * 60 : 160 + Math.random() * 100; 
                 
                 iconObj.position.set(
                     r * Math.sin(phi) * Math.cos(theta),
@@ -537,7 +523,6 @@
                 bgIcons.push(iconObj);
             }
 
-            // 動態生成原石衛星與軌道 (從外部資料 portfolioData 讀取)
             const categories = Object.keys(portfolioData);
             const satelliteData = []; 
             const categoryColors = [0x00ffcc, 0xff4040, 0xa0ff2f, 0x99ccff, 0xffcc00]; 
@@ -554,8 +539,6 @@
             categories.forEach((catName, index) => {
                 const radius = 80; 
                 const tiltGroup = new THREE.Group();
-                
-                // 自動分散軌道傾角
                 tiltGroup.rotation.set(0, 0, (Math.PI / 6) * (index % 3 === 0 ? 0 : index % 2 === 0 ? 1 : -1)); 
                 scene.add(tiltGroup);
 
@@ -587,11 +570,11 @@
                 satLabel.position.set(0, 8, 0);
                 satMesh.add(satLabel);
 
-                labelDiv.addEventListener('click', () => {
+                // 使用 pointerdown 以在觸控裝置上獲得更靈敏的反應
+                labelDiv.addEventListener('pointerdown', () => {
                     if (!isPaused) openNode(catName, satMesh);
                 });
 
-                // 自動依據分類數量分配起始角度
                 satelliteData.push({
                     mesh: satMesh,
                     radius: radius,
@@ -634,7 +617,8 @@
                 sidePanel.classList.add('active');
             }
 
-            btnClose.addEventListener('click', () => {
+            // 🌟 點擊空白處關閉星盤的邏輯
+            function closeNode() {
                 sidePanel.classList.remove('active');
                 isFocusing = false;
                 isRestoring = true;
@@ -645,6 +629,15 @@
                     item.style.opacity = '0';
                     item.style.transform = 'translateX(20px)';
                 });
+            }
+
+            document.addEventListener('pointerdown', (event) => {
+                if (sidePanel.classList.contains('active')) {
+                    // 如果點擊的地方「不是側邊欄內部」，且「不是星系標籤」，且「不是寶箱」
+                    if (!sidePanel.contains(event.target) && !event.target.closest('.satellite-label') && !event.target.closest('.treasure-chest')) {
+                        closeNode();
+                    }
+                }
             });
 
             window.addEventListener('resize', () => {
