@@ -1,32 +1,31 @@
 {
     "工具": [
-        { "name": "作業登記掃描", "https://sherlock0602.github.io/HW-Scanner/": "#scan" },
-        { "name": "收件登記表", "https://sherlock0602.github.io/Tracking-Sheet/index%28v2.0%29.html": "#inbox" },
-        { "name": "學習終端 p2p", "https://sherlock0602.github.io/exam_dashboard/index%28p2p%29%28v3.1%29.html": "#p2p" },
-        { "name": "成績登記(單機版)", "https://sherlock0602.github.io/Score-Sheet/": "#grades" },
-        { "name": "班級儀錶板", "https://sherlock0602.github.io/Class-Dashboard/": "#dashboard" },
-        { "name": "分貝計", "https://sherlock0602.github.io/SonicHUD/": "#decibel" },
-        { "name": "QR code 產生器", "https://sherlock0602.github.io/QRode-Generator/": "#qrcode" },
-        { "name": "AR濾鏡", "https://sherlock0602.github.io/my-ar-camera/": "#AR-camera" },
-        { "name": "AR抽籤", "https://sherlock0602.github.io/ar-lottery/index-new-v01.html": "#AR-lottery" },
-        { "name": "快速檔案傳送", "https://sherlock0602.github.io/Data-_Exchange/": "#Data-_Exchange" },
-        { "name": "AR濾鏡", "https://sherlock0602.github.io/my-ar-camera/": "#AR-camera" }
+        { "name": "作業登記掃描", "url": "https://sherlock0602.github.io/HW-Scanner/" },
+        { "name": "收件登記表", "url": "https://sherlock0602.github.io/Tracking-Sheet/index%28v2.0%29.html" },
+        { "name": "學習終端 p2p", "url": "https://sherlock0602.github.io/exam_dashboard/index%28p2p%29%28v3.1%29.html" },
+        { "name": "成績登記(單機版)", "url": "https://sherlock0602.github.io/Score-Sheet/" },
+        { "name": "班級儀錶板", "url": "https://sherlock0602.github.io/Class-Dashboard/" },
+        { "name": "分貝計", "url": "https://sherlock0602.github.io/SonicHUD/" },
+        { "name": "QR code 產生器", "url": "https://sherlock0602.github.io/QRode-Generator/" },
+        { "name": "AR濾鏡", "url": "https://sherlock0602.github.io/my-ar-camera/" },
+        { "name": "AR抽籤", "url": "https://sherlock0602.github.io/ar-lottery/index-new-v01.html" },
+        { "name": "快速檔案傳送", "url": "https://sherlock0602.github.io/Data-_Exchange/" }
     ],
     "小遊戲": [
-        { "name": "河內塔", "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E6%B2%B3%E5%85%A7%E5%A1%94?authuser=0": "#hanoi" },
-        { "name": "數獨", "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E6%95%B8%E7%8D%A8?authuser=0": "#sudoku" },
-        { "name": "抓硬幣", "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E6%8A%93%E7%A1%AC%E5%B9%A3?authuser=0": "#coin" },
-        { "name": "記憶考驗", "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E8%A8%98%E6%86%B6%E8%80%83%E9%A9%97?authuser=0": "#memory" },
-        { "name": "射擊提問遊戲", "https://sherlock0602.github.io/Shooter-game/": "#shoot" },
-        { "name": "質數射擊", "https://sherlock0602.github.io/Prime-Shooting/": "#prime" }
+        { "name": "河內塔", "url": "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E6%B2%B3%E5%85%A7%E5%A1%94?authuser=0" },
+        { "name": "數獨", "url": "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E6%95%B8%E7%8D%A8?authuser=0" },
+        { "name": "抓硬幣", "url": "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E6%8A%93%E7%A1%AC%E5%B9%A3?authuser=0" },
+        { "name": "記憶考驗", "url": "https://sites.google.com/view/sherlock0602-test/%E9%81%8A%E6%88%B2/%E8%A8%98%E6%86%B6%E8%80%83%E9%A9%97?authuser=0" },
+        { "name": "射擊提問遊戲", "url": "https://sherlock0602.github.io/Shooter-game/" },
+        { "name": "質數射擊", "url": "https://sherlock0602.github.io/Prime-Shooting/" }
     ],
     "教具": [
-        { "name": "數學互動模型", "https://sites.google.com/view/sherlock0602-test/%E6%95%99%E5%85%B7/%E5%BA%B7%E8%BB%92%E6%95%B8%E5%AD%B8%E4%BA%92%E5%8B%95%E6%A8%A1%E5%9E%8B?authuser=0": "#math" },
-        { "name": "全息影像 放大縮小圖", "https://sherlock0602.github.io/sherlock-hologram/": "#hologram" },
-        { "name": "錄音作業上傳", "https://sherlock0602.github.io/HW-Recording/": "#audio" },
+        { "name": "數學互動模型", "url": "https://sites.google.com/view/sherlock0602-test/%E6%95%99%E5%85%B7/%E5%BA%B7%E8%BB%92%E6%95%B8%E5%AD%B8%E4%BA%92%E5%8B%95%E6%A8%A1%E5%9E%8B?authuser=0" },
+        { "name": "全息影像 放大縮小圖", "url": "https://sherlock0602.github.io/sherlock-hologram/" },
+        { "name": "錄音作業上傳", "url": "https://sherlock0602.github.io/HW-Recording/" },
         { "name": "隨機問題", "url": "#random" },
         { "name": "繪製圓形百分圖", "url": "#piechart" },
-        { "name": "神話地圖", "https://sherlock0602.github.io/culture-story-map/index%20v0.9.html": "#map" },
-        { "name": "字音字形 練習", "https://sherlock0602.github.io/CPW-practise/": "#typing" }
+        { "name": "神話地圖", "url": "https://sherlock0602.github.io/culture-story-map/index%20v0.9.html" },
+        { "name": "字音字形 練習", "url": "https://sherlock0602.github.io/CPW-practise/" }
     ]
 }
