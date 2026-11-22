@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 680" width="800" height="680">
+  <defs>
+    <linearGradient id="woodFront" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6B221B" />
+      <stop offset="50%" stop-color="#47130E" />
+      <stop offset="100%" stop-color="#260805" />
+    </linearGradient>
+
+    <linearGradient id="woodSide" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3D100C" />
+      <stop offset="60%" stop-color="#240806" />
+      <stop offset="100%" stop-color="#120302" />
+    </linearGradient>
+
+    <linearGradient id="woodLid" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#8A2E25" />
+      <stop offset="45%" stop-color="#591913" />
+      <stop offset="100%" stop-color="#2B0906" />
+    </linearGradient>
+
+    <linearGradient id="goldBright" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF7C2" />
+      <stop offset="25%" stop-color="#F7C948" />
+      <stop offset="60%" stop-color="#C98E16" />
+      <stop offset="90%" stop-color="#F2C144" />
+      <stop offset="100%" stop-color="#8A5A04" />
+    </linearGradient>
+
+    <linearGradient id="goldSide" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D49B24" />
+      <stop offset="55%" stop-color="#8F6008" />
+      <stop offset="100%" stop-color="#4A3002" />
+    </linearGradient>
+
+    <linearGradient id="goldPillar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFF3B0" />
+      <stop offset="30%" stop-color="#E5B02A" />
+      <stop offset="75%" stop-color="#9E6B0B" />
+      <stop offset="100%" stop-color="#5E3D03" />
+    </linearGradient>
+
+    <radialGradient id="primogemGlow" cx="42%" cy="38%" r="58%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="22%" stop-color="#BDF9FF" />
+      <stop offset="55%" stop-color="#35D0F2" />
+      <stop offset="85%" stop-color="#0D7599" />
+      <stop offset="100%" stop-color="#053E54" />
+    </radialGradient>
+
+    <radialGradient id="ruby" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFD6D6" />
+      <stop offset="40%" stop-color="#F52549" />
+      <stop offset="100%" stop-color="#690415" />
+    </radialGradient>
+
+    <filter id="gemLight" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="starSparkle" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g stroke="#1C0D02" stroke-width="3" stroke-linejoin="round">
+    <path d="M645 450 C668 455, 675 480, 668 505 L692 522 C698 532, 685 542, 662 542 L632 535 Z" fill="url(#goldSide)" />
+  </g>
+
+  <g stroke="#1C0D02" stroke-width="3.2" stroke-linejoin="round">
+    <polygon points="150,315 510,365 495,555 172,502" fill="url(#woodFront)" />
+    <polygon points="510,365 655,295 638,478 495,555" fill="url(#woodSide)" />
+
+    <line x1="158" y1="378" x2="505" y2="428" stroke="#1C0906" stroke-width="2.5" opacity="0.7" />
+    <line x1="165" y1="442" x2="500" y2="492" stroke="#1C0906" stroke-width="2.5" opacity="0.7" />
+    <line x1="505" y1="428" x2="648" y2="355" stroke="#120403" stroke-width="2.5" opacity="0.75" />
+    <line x1="500" y1="492" x2="642" y2="418" stroke="#120403" stroke-width="2.5" opacity="0.75" />
+
+    <path d="M182 325 L268 337 L276 472 C245 495, 195 485, 192 445 Z" fill="none" stroke="url(#goldBright)" stroke-width="10" />
+    <path d="M478 366 L392 354 L384 488 C415 518, 465 515, 470 475 Z" fill="none" stroke="url(#goldBright)" stroke-width="10" />
+
+    <g fill="none" stroke="url(#goldBright)" stroke-width="3.5" stroke-linecap="round">
+      <path d="M210 365 C235 355, 248 378, 228 395 C212 408, 238 425, 248 448" />
+      <circle cx="222" cy="376" r="3" fill="#FFF7C2" />
+      <path d="M448 398 C422 382, 408 405, 428 424 C444 438, 418 456, 408 478" />
+      <circle cx="436" cy="408" r="3" fill="#FFF7C2" />
+    </g>
+
+    <polygon points="315,342 355,348 350,532 312,526" fill="url(#goldPillar)" />
+    <polygon points="333,475 341,490 333,505 325,490" fill="url(#ruby)" stroke="#FFF7C2" stroke-width="1" />
+
+    <polygon points="146,312 184,318 202,508 168,502" fill="url(#goldPillar)" />
+    <polygon points="476,360 512,365 496,558 462,552" fill="url(#goldPillar)" />
+    <polygon points="512,365 544,349 528,538 496,558" fill="url(#goldSide)" />
+    <polygon points="628,308 658,293 640,478 612,492" fill="url(#goldSide)" />
+
+    <g>
+      <polygon points="565,375 605,355 600,432 560,452" fill="url(#goldSide)" />
+      <ellipse cx="584" cy="408" rx="16" ry="24" transform="rotate(-12 584 408)" fill="none" stroke="url(#goldBright)" stroke-width="6.5" />
+      <circle cx="584" cy="390" r="6" fill="url(#goldBright)" />
+    </g>
+
+    <polygon points="158,492 504,548 498,574 152,516" fill="url(#goldBright)" />
+    <polygon points="504,548 648,470 642,494 498,574" fill="url(#goldSide)" />
+    <polygon points="300,514 334,504 368,526 334,548" fill="url(#goldBright)" />
+  </g>
+
+  <g stroke="#1C0D02" stroke-width="3" stroke-linejoin="round">
+    <path d="M164 468 C142 475, 136 502, 144 524 L118 542 C112 552, 125 562, 152 562 L182 548 L186 506 Z" fill="url(#goldBright)" />
+    <path d="M128 560 C130 550, 138 548, 142 560 M144 561 C146 550, 154 548, 158 560" fill="none" stroke="#1C0D02" stroke-width="2.5" />
+
+    <path d="M472 512 L505 495 L532 515 L528 568 L545 592 C548 606, 526 616, 498 614 L478 595 L465 565 Z" fill="url(#goldBright)" />
+    <path d="M475 538 Q495 525 505 545 Q518 525 530 538" fill="none" stroke="#5E3D03" stroke-width="3" />
+    <path d="M495 612 C497 598, 507 598, 509 613 M514 612 C516 598, 526 598, 528 610" fill="none" stroke="#1C0D02" stroke-width="2.5" />
+  </g>
+
+  <g stroke="#1C0D02" stroke-width="3.2" stroke-linejoin="round">
+    <path d="M145 312 C145 190, 210 135, 295 145 L605 182 C655 195, 668 250, 660 295 L515 365 L145 312 Z" fill="url(#woodLid)" />
+
+    <path d="M515 365 C515 245, 565 178, 615 185 C655 192, 665 245, 660 295 Z" fill="url(#woodSide)" />
+    <path d="M548 318 C545 255, 575 212, 608 218 C632 222, 638 265, 622 292" fill="none" stroke="url(#goldSide)" stroke-width="5" stroke-linecap="round" />
+
+    <path d="M168 242 L528 292" fill="none" stroke="#1C0906" stroke-width="2.5" opacity="0.65" />
+    <path d="M212 185 L568 232" fill="none" stroke="#1C0906" stroke-width="2.5" opacity="0.65" />
+
+    <path d="M142 312 C142 190, 205 135, 295 145 L322 149 C235 140, 175 195, 175 316 Z" fill="url(#goldBright)" />
+    <path d="M275 330 C275 208, 332 152, 415 160 L442 163 C360 156, 305 212, 305 335 Z" fill="url(#goldBright)" />
+    <path d="M352 342 C352 220, 408 162, 490 170 L516 173 C435 166, 382 224, 382 346 Z" fill="url(#goldBright)" />
+    <path d="M485 360 C485 235, 540 175, 615 184 L632 188 C562 182, 515 242, 515 365 Z" fill="url(#goldBright)" />
+
+    <g fill="#FFF7C2" stroke="#5E3D03" stroke-width="1.5">
+      <circle cx="166" cy="265" r="4.5" />
+      <circle cx="192" cy="212" r="4.5" />
+      <circle cx="235" cy="170" r="4.5" />
+      <circle cx="298" cy="282" r="4.5" />
+      <circle cx="322" cy="228" r="4.5" />
+      <circle cx="362" cy="185" r="4.5" />
+      <circle cx="375" cy="294" r="4.5" />
+      <circle cx="398" cy="238" r="4.5" />
+      <circle cx="438" cy="195" r="4.5" />
+      <circle cx="508" cy="310" r="4.5" />
+      <circle cx="532" cy="252" r="4.5" />
+      <circle cx="572" cy="206" r="4.5" />
+    </g>
+
+    <polygon points="138,304 516,356 512,382 134,328" fill="url(#goldBright)" />
+    <polygon points="516,356 666,284 662,308 512,382" fill="url(#goldSide)" />
+  </g>
+
+  <g stroke="#1C0D02" stroke-width="3" stroke-linejoin="round">
+    <path d="M188 336 C135 335, 108 305, 118 265 C124 275, 130 280, 132 272 C125 245, 132 218, 145 205 C152 225, 162 242, 165 258 C178 268, 195 295, 202 325 Z" fill="url(#goldBright)" />
+    <path d="M135 285 C152 295, 168 310, 182 325 M146 248 C162 268, 175 290, 188 315" fill="none" stroke="#7A4E04" stroke-width="2.5" />
+
+    <path d="M475 376 C528 388, 568 362, 576 318 C568 326, 562 328, 562 318 C575 292, 575 260, 565 242 C552 262, 538 278, 532 292 C512 302, 485 332, 472 365 Z" fill="url(#goldBright)" />
+    <path d="M555 332 C535 342, 512 355, 492 368 M552 288 C532 308, 512 328, 490 352" fill="none" stroke="#7A4E04" stroke-width="2.5" />
+
+    <path d="M645 312 C675 305, 692 278, 688 245 C680 255, 675 255, 676 245 C684 225, 682 202, 672 190 C662 210, 652 232, 645 265 Z" fill="url(#goldSide)" />
+  </g>
+
+  <g stroke="#1C0D02" stroke-width="3" stroke-linejoin="round">
+    <polygon points="308,308 338,282 368,316" fill="url(#goldBright)" />
+
+    <path d="M276 335 C242 322, 224 295, 238 278 C244 290, 252 298, 262 300 C252 310, 258 322, 275 326 Z" fill="url(#goldBright)" />
+    <path d="M275 348 C245 348, 232 332, 245 320 C252 328, 262 334, 275 336 Z" fill="url(#goldBright)" />
+    <path d="M396 352 C432 348, 454 322, 444 302 C436 314, 426 320, 416 320 C424 332, 416 342, 398 344 Z" fill="url(#goldBright)" />
+    <path d="M394 365 C424 372, 440 358, 430 344 C422 350, 410 354, 396 354 Z" fill="url(#goldBright)" />
+
+    <path d="M274 316 L336 298 L398 334 L388 436 L332 478 L280 422 Z" fill="url(#goldBright)" />
+    <path d="M288 328 L336 314 L384 342 L376 426 L332 460 L294 414 Z" fill="#1E353D" stroke="#6E4704" stroke-width="2" />
+
+    <path d="M298 355 Q310 342 322 352 M372 365 Q360 350 348 356 M302 405 Q315 422 326 415 M366 412 Q352 426 340 418" fill="none" stroke="url(#goldBright)" stroke-width="2.5" stroke-linecap="round" />
+
+    <polygon points="336,305 343,314 336,323 329,314" fill="url(#ruby)" stroke="#FFF7C2" stroke-width="1" />
+    <polygon points="332,452 339,461 332,470 325,461" fill="url(#ruby)" stroke="#FFF7C2" stroke-width="1" />
+
+    <g filter="url(#gemLight)">
+      <polygon points="335,336 352,368 380,386 350,400 332,430 316,396 290,376 318,364" fill="url(#primogemGlow)" stroke="#E6FFFF" stroke-width="2" />
+      <polygon points="335,336 352,368 335,383 318,364" fill="#FFFFFF" opacity="0.75" />
+      <polygon points="335,383 380,386 350,400 332,430" fill="#085370" opacity="0.55" />
+      <line x1="335" y1="336" x2="332" y2="430" stroke="#FFFFFF" stroke-width="1.2" opacity="0.8" />
+      <line x1="290" y1="376" x2="380" y2="386" stroke="#FFFFFF" stroke-width="1.2" opacity="0.8" />
+    </g>
+  </g>
+
+  <g filter="url(#starSparkle)">
+    <path d="M165 145 Q170 162 186 166 Q170 170 165 187 Q160 170 144 166 Q160 162 165 145 Z" fill="#FFE678" />
+    <path d="M108 215 Q111 224 120 227 Q111 230 108 239 Q105 230 96 227 Q105 224 108 215 Z" fill="#FFE678" />
+    <path d="M685 215 Q688 225 698 228 Q688 231 685 241 Q682 231 672 228 Q682 225 685 215 Z" fill="#FFE678" />
+    <path d="M702 355 Q705 364 714 367 Q705 370 702 379 Q699 370 690 367 Q699 364 702 355 Z" fill="#FFE678" />
+
+    <path d="M565 135 Q568 144 577 147 Q568 150 565 159 Q562 150 553 147 Q562 144 565 135 Z" fill="#5CE6FF" />
+    <path d="M680 392 Q684 404 696 408 Q684 412 680 424 Q676 412 664 408 Q676 404 680 392 Z" fill="#5CE6FF" />
+
+    <circle cx="132" cy="182" r="4" fill="#FFE678" />
+    <circle cx="146" cy="195" r="2.5" fill="#FFE678" />
+    <circle cx="95" cy="348" r="5" fill="#FFE678" />
+    <circle cx="118" cy="378" r="3" fill="#5CE6FF" />
+    <circle cx="702" cy="242" r="2.5" fill="#FFE678" />
+    <circle cx="662" cy="435" r="3" fill="#5CE6FF" />
+  </g>
+</svg>
