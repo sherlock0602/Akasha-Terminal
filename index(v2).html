@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虛空星盤 - Genshin Portfolio Hub</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 引入 OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- 引入 CSS2DRenderer -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+    
+    <style>
+        /* 引入典雅的襯線字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #050510 !important;
+            font-family: 'Noto Serif TC', serif;
+            color: #d4af37;
+            user-select: none;
+        }
+
+        #star-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        #webgl-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            cursor: grab;
+        }
+        
+        #webgl-container:active { cursor: grabbing; }
+
+        #css2d-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 3;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .satellite-label {
+            color: #f3e3b3;
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            pointer-events: auto;
+            text-shadow: 0 0 4px rgba(0,0,0,0.8);
+            background: rgba(11, 21, 40, 0.7);
+            border: 1px solid #d4af37;
+            padding: 8px 18px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(212, 175, 55, 0.2);
+        }
+
+        .satellite-label:hover {
+            background: rgba(212, 175, 55, 0.2);
+            color: #fff;
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6), inset 0 0 10px rgba(212, 175, 55, 0.4);
+            border-color: #f3e3b3;
+        }
+
+        #side-panel {
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: rgba(11, 21, 40, 0.85);
+            backdrop-filter: blur(12px);
+            border-left: 2px solid #d4af37;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+            transition: right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            padding: 2.5rem;
+            box-sizing: border-box;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #side-panel.active { right: 0; }
+
+        .panel-header {
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1.6rem;
+            color: #f3e3b3;
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 1px solid #d4af37;
+            border-radius: 20px;
+            color: #d4af37;
+            font-family: inherit;
+            padding: 0.4rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .close-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .link-list::-webkit-scrollbar { width: 4px; }
+        .link-list::-webkit-scrollbar-track { background: transparent; }
+        .link-list::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 2px; }
+
+        .link-item {
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s ease;
+        }
+
+        .link-item a {
+            display: block;
+            color: #e0d0a0;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .link-item a::before {
+            content: "✦";
+            position: absolute;
+            left: 15px;
+            color: #d4af37;
+            opacity: 0;
+            transition: all 0.3s;
+            transform: scale(0.5);
+        }
+
+        .link-item a:hover {
+            border-color: #d4af37;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
+            color: #fff;
+            padding-left: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .link-item a:hover::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .bg-icon {
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        @keyframes slowSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .bg-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+            opacity: 0.8;
+            animation: slowSpin 20s linear infinite;
+        }
+
+        .main-title {
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            pointer-events: none;
+        }
+        .main-title h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            color: #f3e3b3;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            letter-spacing: 4px;
+        }
+        .main-title p {
+            margin: 8px 0 0 0;
+            font-size: 0.95rem;
+            color: #a0b0c0;
+            letter-spacing: 1px;
+        }
+
+        .treasure-chest {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            z-index: 20;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4));
+        }
+
+        .treasure-chest:hover {
+            transform: scale(1.15) rotate(5deg);
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 1));
+        }
+
+        .treasure-chest img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .treasure-chest-label {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #f3e3b3;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        .treasure-chest:hover .treasure-chest-label {
+            opacity: 1;
+        }
+
+        .bg-orb {
+            border-radius: 50%;
+            animation: slowSpin 20s linear infinite;
+        }
+
+        .bg-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        // 【背景漂浮圖案設定】
+        // 將您畫好的小圖案檔名放在這個陣列裡。若留空則顯示發光小圓球。
+        const floatingImages = []; 
+    </script>
+
+    <!-- 背景層：星空星塵 -->
+    <canvas id="star-bg"></canvas>
+
+    <!-- 3D 渲染層 -->
+    <div id="webgl-container"></div>
+
+    <!-- UI 覆蓋層 -->
+    <div id="ui-layer">
+        <div class="main-title">
+            <h1>✦ 虛空星盤</h1>
+            <p>Ad Astra Abyssosque. Select a constellation.</p>
+        </div>
+
+        <a href="https://your-treasure-link.com" target="_blank" class="treasure-chest" id="treasure-btn">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🎁</text></svg>" alt="Treasure Chest">
+            <span class="treasure-chest-label">神祕連結</span>
+        </a>
+
+        <div id="side-panel">
+            <div class="panel-header">
+                <h2 class="panel-title" id="panel-title">CATEGORY</h2>
+                <button class="close-btn" id="btn-close">✦ 關閉星盤 ✦</button>
+            </div>
+            <ul class="link-list" id="link-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. 2D 浪漫星空與漂浮星塵
+        // ==========================================
+        const starCanvas = document.getElementById('star-bg');
+        const sCtx = starCanvas.getContext('2d');
+        
+        function resizeCanvas() {
+            starCanvas.width = window.innerWidth;
+            starCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        for (let i = 0; i < 200; i++) {
+            particles.push({
+                x: Math.random() * starCanvas.width,
+                y: Math.random() * starCanvas.height,
+                r: Math.random() * 1.5 + 0.5,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 1) * 0.5 - 0.1,
+                alpha: Math.random(),
+                dAlpha: (Math.random() - 0.5) * 0.02
+            });
+        }
+
+        function drawStars() {
+            sCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha += p.dAlpha;
+                if (p.alpha <= 0.1 || p.alpha >= 1) p.dAlpha *= -1;
+                
+                if (p.y < 0) { p.y = starCanvas.height; p.x = Math.random() * starCanvas.width; }
+                if (p.x < 0) p.x = starCanvas.width;
+                if (p.x > starCanvas.width) p.x = 0;
+
+                sCtx.beginPath();
+                sCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                sCtx.fillStyle = `rgba(243, 227, 179, ${p.alpha})`;
+                sCtx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+
+        // ==========================================
+        // 2. 外部資料讀取與 3D 核心系統
+        // ==========================================
+        let portfolioData = {}; // 準備存放從 JSON 讀取的資料
+
+        window.onload = function() {
+            // 嘗試讀取同層目錄下的 data.json
+            fetch('data.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    portfolioData = data;
+                    init3DScene(); // 讀取成功，啟動 3D
+                })
+                .catch(error => {
+                    console.warn("無法讀取 data.json (可能是因為直接點擊打開 HTML)。切換為預設防呆資料。", error);
+                    // 防呆機制：若因本地開啟檔案而無法 fetch，給予預設資料以維持畫面運作
+                    portfolioData = {
+                        "系統提示": [
+                            { name: "⚠️ 請使用本地伺服器開啟以讀取 JSON", url: "#" },
+                            { name: "(如 VS Code 的 Live Server)", url: "#" }
+                        ]
+                    };
+                    init3DScene();
+                });
+        };
+
+        // 3D 場景初始化函數
+        function init3DScene() {
+            const container = document.getElementById('webgl-container');
+            const sidePanel = document.getElementById('side-panel');
+            const btnClose = document.getElementById('btn-close');
+            const linkList = document.getElementById('link-list');
+            const panelTitle = document.getElementById('panel-title');
+            
+            const scene = new THREE.Scene();
+            const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true });
+            renderer.setClearColor(0x050510, 1);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.id = 'css2d-container';
+            document.body.appendChild(labelRenderer.domElement);
+
+            const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1500);
+            camera.position.set(0, 30, 160); 
+
+            const controls = new THREE.OrbitControls(camera, labelRenderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enablePan = false;
+            controls.minDistance = 60;
+            controls.maxDistance = 350;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); 
+            scene.add(ambientLight);
+            
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+
+            const astrolabeGroup = new THREE.Group();
+            scene.add(astrolabeGroup);
+
+            // --- 載入真實地球貼圖 ---
+            const textureLoader = new THREE.TextureLoader();
+            // 這裡直接使用 Three.js 官方範例的無版權高畫質地球貼圖網址
+            const earthTextureUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg';
+            const planetTexture = textureLoader.load(earthTextureUrl);
+
+            // 中心星球
+            const sphereGeo = new THREE.SphereGeometry(18, 64, 64);
+            const sphereMat = new THREE.MeshStandardMaterial({ 
+                map: planetTexture,
+                roughness: 0.6,
+                metalness: 0.1
+            });
+            const planetMesh = new THREE.Mesh(sphereGeo, sphereMat);
+            planetMesh.rotation.z = Math.PI / 8;
+            astrolabeGroup.add(planetMesh);
+
+            // 金色星環
+            const ringRings = [];
+            const ringMat = new THREE.MeshStandardMaterial({ 
+                color: 0xd4af37, 
+                metalness: 0.7, 
+                roughness: 0.2 
+            });
+
+            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(26, 0.4, 16, 100), ringMat);
+            ring1.rotation.x = Math.PI / 2;
+            
+            const ring2 = new THREE.Mesh(new THREE.TorusGeometry(30, 0.3, 16, 100), ringMat);
+            ring2.rotation.y = Math.PI / 3;
+            ring2.rotation.x = Math.PI / 4;
+            
+            const ring3 = new THREE.Mesh(new THREE.TorusGeometry(34, 0.2, 16, 100), ringMat);
+            ring3.rotation.y = -Math.PI / 3;
+            ring3.rotation.z = Math.PI / 6;
+
+            astrolabeGroup.add(ring1, ring2, ring3);
+            ringRings.push(ring1, ring2, ring3);
+
+            // 背景裝飾 (元素圖騰 SVG)
+            const bgIcons = [];
+            const elementColors = ['#FF5E5E', '#32B4FF', '#5CFFC4', '#C373FF', '#A0D729', '#99FFFF', '#F5D659'];
+            const iconCount = floatingImages.length > 0 ? floatingImages.length * 6 : 35;
+
+            for (let i = 0; i < iconCount; i++) {
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'bg-icon';
+                const size = 18 + Math.random() * 22;
+                iconDiv.style.width = size + 'px';
+                iconDiv.style.height = size + 'px';
+                iconDiv.style.opacity = (0.2 + Math.random() * 0.5).toString();
+                const color = elementColors[i % elementColors.length];
+                
+                if (floatingImages.length > 0) {
+                    const img = document.createElement('img');
+                    img.src = floatingImages[i % floatingImages.length];
+                    img.style.animationDuration = (15 + Math.random() * 20) + 's';
+                    img.style.animationDirection = Math.random() > 0.5 ? 'normal' : 'reverse';
+                    iconDiv.style.filter = `drop-shadow(0 0 8px ${color})`;
+                    iconDiv.appendChild(img);
+                } else {
+                    iconDiv.classList.add('bg-orb');
+                    iconDiv.style.backgroundColor = color;
+                    iconDiv.style.boxShadow = `0 0 15px ${color}, inset 0 0 6px rgba(255,255,255,0.7)`;
+                }
+
+                const iconObj = new THREE.CSS2DObject(iconDiv);
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const r = 160 + Math.random() * 100; 
+                
+                iconObj.position.set(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta),
+                    r * Math.cos(phi)
+                );
+                iconObj.userData = { offset: Math.random() * Math.PI * 2 };
+                scene.add(iconObj);
+                bgIcons.push(iconObj);
+            }
+
+            // 動態生成原石衛星與軌道 (從外部資料 portfolioData 讀取)
+            const categories = Object.keys(portfolioData);
+            const satelliteData = []; 
+            const categoryColors = [0x00ffcc, 0xff4040, 0xa0ff2f, 0x99ccff, 0xffcc00]; 
+
+            let isPaused = false;
+            let isFocusing = false;
+            let isRestoring = false;
+            let activeSatMesh = null;
+            const savedCameraPos = new THREE.Vector3();
+            const savedControlsTarget = new THREE.Vector3();
+            const targetCameraPos = new THREE.Vector3();
+            const targetLook = new THREE.Vector3();
+
+            categories.forEach((catName, index) => {
+                const radius = 80; 
+                const tiltGroup = new THREE.Group();
+                
+                // 自動分散軌道傾角
+                tiltGroup.rotation.set(0, 0, (Math.PI / 6) * (index % 3 === 0 ? 0 : index % 2 === 0 ? 1 : -1)); 
+                scene.add(tiltGroup);
+
+                const orbitCurve = new THREE.EllipseCurve(0, 0, radius, radius, 0, 2 * Math.PI, false, 0);
+                const orbitPoints = orbitCurve.getPoints(64);
+                const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+                const orbitMat = new THREE.LineBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.15 });
+                const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+                orbitLine.rotation.x = Math.PI / 2;
+                tiltGroup.add(orbitLine);
+
+                const satGeo = new THREE.OctahedronGeometry(3.5, 0);
+                const satMat = new THREE.MeshStandardMaterial({ 
+                    color: categoryColors[index % categoryColors.length],
+                    metalness: 0.3,
+                    roughness: 0.4,
+                    emissive: categoryColors[index % categoryColors.length],
+                    emissiveIntensity: 0.4
+                });
+                const satMesh = new THREE.Mesh(satGeo, satMat);
+                satMesh.scale.set(1, 1.6, 1); 
+                tiltGroup.add(satMesh);
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'satellite-label';
+                labelDiv.innerText = `✦ ${catName}`;
+                
+                const satLabel = new THREE.CSS2DObject(labelDiv);
+                satLabel.position.set(0, 8, 0);
+                satMesh.add(satLabel);
+
+                labelDiv.addEventListener('click', () => {
+                    if (!isPaused) openNode(catName, satMesh);
+                });
+
+                // 自動依據分類數量分配起始角度
+                satelliteData.push({
+                    mesh: satMesh,
+                    radius: radius,
+                    angle: (Math.PI * 2 / categories.length) * index,
+                    speed: 0.0015
+                });
+            });
+
+            function openNode(categoryName, satMesh) {
+                savedCameraPos.copy(camera.position);
+                savedControlsTarget.copy(controls.target);
+
+                isPaused = true;
+                isFocusing = true;
+                isRestoring = false;
+                activeSatMesh = satMesh;
+                controls.enabled = false;
+
+                panelTitle.innerText = `✦ ${categoryName}`;
+                linkList.innerHTML = ''; 
+                
+                const links = portfolioData[categoryName];
+                if(links) {
+                    links.forEach((item, i) => {
+                        const li = document.createElement('li');
+                        li.className = 'link-item';
+                        const a = document.createElement('a');
+                        a.href = item.url;
+                        a.target = '_blank';
+                        a.innerText = item.name;
+                        li.appendChild(a);
+                        linkList.appendChild(li);
+
+                        setTimeout(() => {
+                            li.style.opacity = '1';
+                            li.style.transform = 'translateX(0)';
+                        }, 300 + i * 100);
+                    });
+                }
+                sidePanel.classList.add('active');
+            }
+
+            btnClose.addEventListener('click', () => {
+                sidePanel.classList.remove('active');
+                isFocusing = false;
+                isRestoring = true;
+                activeSatMesh = null;
+                
+                const items = document.querySelectorAll('.link-item');
+                items.forEach(item => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (!isPaused) {
+                    astrolabeGroup.children[0].rotation.y += 0.001;
+
+                    ringRings[0].rotation.x += 0.002;
+                    ringRings[0].rotation.y += 0.001;
+                    
+                    ringRings[1].rotation.y -= 0.003;
+                    ringRings[1].rotation.z += 0.002;
+                    
+                    ringRings[2].rotation.x -= 0.0015;
+                    ringRings[2].rotation.z -= 0.003;
+
+                    bgIcons.forEach(icon => {
+                        const time = Date.now();
+                        icon.position.y += Math.sin(time * 0.001 + icon.userData.offset) * 0.04;
+                        icon.position.x += Math.cos(time * 0.0008 + icon.userData.offset) * 0.02;
+                    });
+
+                    satelliteData.forEach(sat => {
+                        sat.angle += sat.speed;
+                        sat.mesh.position.set(
+                            Math.cos(sat.angle) * sat.radius,
+                            0,
+                            Math.sin(sat.angle) * sat.radius
+                        );
+                        sat.mesh.rotation.y += 0.015; 
+                    });
+                }
+
+                if (isFocusing && activeSatMesh) {
+                    const worldPos = new THREE.Vector3();
+                    activeSatMesh.getWorldPosition(worldPos);
+                    targetLook.copy(worldPos);
+                    
+                    const offset = worldPos.clone().normalize().multiplyScalar(35); 
+                    offset.y += 5;
+                    targetCameraPos.copy(worldPos).add(offset);
+
+                    camera.position.lerp(targetCameraPos, 0.03);
+                    controls.target.lerp(targetLook, 0.03);
+                } else if (isRestoring) {
+                    camera.position.lerp(savedCameraPos, 0.04);
+                    controls.target.lerp(savedControlsTarget, 0.04);
+                    
+                    if (camera.position.distanceTo(savedCameraPos) < 0.5) {
+                        camera.position.copy(savedCameraPos);
+                        controls.target.copy(savedControlsTarget);
+                        isRestoring = false;
+                        isPaused = false;
+                        controls.enabled = true;
+                    }
+                }
+
+                controls.update(); 
+                renderer.render(scene, camera);
+                labelRenderer.render(scene, camera);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+    "工具": [
+        { "name": "作業登記掃描", "url": "#scan" },
+        { "name": "收件登記表", "url": "#inbox" },
+        { "name": "學習終端 p2p", "url": "#p2p" },
+        { "name": "成績登記(單機版)", "url": "#grades" },
+        { "name": "班級儀錶板", "url": "#dashboard" },
+        { "name": "分貝計", "url": "#decibel" },
+        { "name": "QR code 產生器", "url": "#qrcode" }
+    ],
+    "小遊戲": [
+        { "name": "河內塔", "url": "#hanoi" },
+        { "name": "數獨", "url": "#sudoku" },
+        { "name": "抓硬幣", "url": "#coin" },
+        { "name": "記憶考驗", "url": "#memory" },
+        { "name": "射擊提問遊戲", "url": "#shoot" },
+        { "name": "質數射擊", "url": "#prime" }
+    ],
+    "教具": [
+        { "name": "數學互動模型", "url": "#math" },
+        { "name": "全息影像 放大縮小圖", "url": "#hologram" },
+        { "name": "錄音作業上傳", "url": "#audio" },
+        { "name": "隨機問題", "url": "#random" },
+        { "name": "繪製圓形百分圖", "url": "#piechart" },
+        { "name": "神話地圖", "url": "#map" },
+        { "name": "字音字形 練習", "url": "#typing" }
+    ]
+}
