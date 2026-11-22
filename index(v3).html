@@ -543,7 +543,7 @@
                 scene.add(tiltGroup);
 
                 // 🌟 使用 3D 環形幾何體 (TorusGeometry) 取代 1px 細線
-                const orbitGeo = new THREE.TorusGeometry(radius, 0.3, 8, 100); 
+                const orbitGeo = new THREE.TorusGeometry(radius, 0.1, 8, 100); 
                 const orbitMat = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.4 });
                 const orbitLine = new THREE.Mesh(orbitGeo, orbitMat);
                 orbitLine.rotation.x = Math.PI / 2;
